@@ -1,12 +1,19 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { chromium, Page } from 'playwright';
-import { ExecuteOrderDto } from './execute-order.dto';
+import { ExecuteOrderRequestDto } from './ExecuteOrderRequest.dto';
+import { ExecuteOrderResponseDto } from './ExecuteOrderResponse.dto';
+import { ApiResponse } from '@nestjs/swagger';
 
 @Controller('execute-order')
 export class ExecuteOrderController {
 
     @Post()
-    async executeOrder(@Body() dto: ExecuteOrderDto): Promise<string> {
+    @ApiResponse({
+        status: 200,
+        description: 'The URL of the order',
+        type: ExecuteOrderResponseDto,
+    })
+    async executeOrder(@Body() dto: ExecuteOrderRequestDto): Promise<ExecuteOrderResponseDto> {
 
         const browser = await chromium.launch({ headless: false });
         const page = await browser.newPage();
@@ -28,6 +35,6 @@ export class ExecuteOrderController {
 
         const pageUrl = page.url();
         await browser.close();
-        return pageUrl;
+        return { url: pageUrl };
     }
 }
